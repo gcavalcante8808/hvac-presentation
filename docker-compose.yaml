@@ -1,0 +1,25 @@
+version: '2.2'
+
+volumes:
+  db-data:
+
+services:
+  db:
+    image: postgres:11-alpine
+    environment:
+     POSTGRES_USER: db
+     POSTGRES_DB: db
+     POSTGRES_PASSWORD: db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  app:
+    image: matando-as-senhas-e-mostrando:o-vault
+    build: .
+    command: ["python","app.py"]
+    tty: true
+    ports:
+      - 5000:5000
+    working_dir: /usr/src/code
+    volumes:
+      - ./:/usr/src/code
