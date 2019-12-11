@@ -2,6 +2,10 @@ version: '2.2'
 
 volumes:
   db-data:
+  vault-logs:
+  vault-data:
+  s3-data:
+
 
 services:
   db:
@@ -23,3 +27,45 @@ services:
     working_dir: /usr/src/code
     volumes:
       - ./:/usr/src/code
+
+
+  vault:
+    image: vault:1.2.2
+    cap_add:
+    - IPC_LOCK
+    ports:
+      - 8200:8200
+    environment:
+    - VAULT_ADDR=http://127.0.0.1:8200
+    - AWS_S3_ENDPOINT=http://s3:9000
+    - AWS_S3_BUCKET=vault
+    - AWS_ACCESS_KEY_ID=minio
+    - AWS_SECRET_ACCESS_KEY=minio123
+    volumes:
+    - vault-logs:/vault/logs
+    - vault-data:/vault/file
+    - ./vault/default.hcl:/vault/config/default.hcl
+    entrypoint: vault
+    command: server -config /vault/config/default.hcl
+
+  s3:
+    image: gcavalcante8808/minio-dev
+    volumes:
+      - s3-data:/data
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_INITIAL_BUCKET: vault
+      MINIO_INITIAL_BUCKET_PERMISSION: none
+      MINIO_DOMAIN: s3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      default:
+        aliases:
+        - vault.s3
