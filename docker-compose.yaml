@@ -9,13 +9,14 @@ volumes:
 
 services:
   db:
-    image: postgres:11-alpine
+    image: mysql:8.0
     environment:
-     POSTGRES_USER: db
-     POSTGRES_DB: db
-     POSTGRES_PASSWORD: db
+      MYSQL_ROOT_PASSWORD: db
+      MYSQL_DATABASE: db
+      MYSQL_USER: db
+      MYSQL_PASSWORD: db
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/mysql
 
   app:
     image: matando-as-senhas-e-mostrando:o-vault
@@ -47,6 +48,9 @@ services:
     - ./vault/default.hcl:/vault/config/default.hcl
     entrypoint: vault
     command: server -config /vault/config/default.hcl
+    depends_on:
+      s3:
+        condition: service_healthy
 
   s3:
     image: gcavalcante8808/minio-dev
@@ -69,3 +73,4 @@ services:
       default:
         aliases:
         - vault.s3
+
