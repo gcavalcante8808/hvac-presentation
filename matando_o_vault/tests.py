@@ -7,7 +7,7 @@ from falcon import testing
 from mixer.backend.sqlalchemy import Mixer
 
 from matando_o_vault.app import get_app, db_connection
-from matando_o_vault.models import Question, QuestionSchema
+from models.question import QuestionSchema, Question
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def mixer():
 def test_list_quests_using_json_api(client, mixer):
     question = QuestionSchema().dump(mixer.blend(Question))
 
-    response = client.simulate_get('/api/v1/quests')
+    response = client.simulate_get('/api/v1/question')
 
 
     assert response.status == falcon.HTTP_OK
@@ -33,7 +33,7 @@ def test_list_quests_using_json_api(client, mixer):
 def test_list_quests_using_mpack_api(client, mixer):
     question = QuestionSchema().dump(mixer.blend(Question))
 
-    response = client.simulate_get('/api/v2/quests')
+    response = client.simulate_get('/api/v2/question')
 
     questions = msgpack.unpackb(response.content, raw=False)
 

@@ -10,6 +10,8 @@ volumes:
 services:
   db:
     image: mysql:8.0
+    ports:
+    - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: db
       MYSQL_DATABASE: db
@@ -21,14 +23,21 @@ services:
   app:
     image: matando-as-senhas-e-mostrando:o-vault
     build: .
-    command: ["python","app.py"]
+    command: ["bash"]
     tty: true
+    environment:
+      - DB_HOST=db
+      - DB_NAME=db
+      - APP_ROLE_ID=
+      - APP_SECRET_ID=
+      - APP_DB_ROLE=da-todas-as-permissoes-na-base-db
+      - STATIC_SECRET_PATH=mysql-apresentacao
+      - VAULT_ADDR=http://vault:8200
     ports:
       - 5000:5000
-    working_dir: /usr/src/code
+    working_dir: /usr/src/matando_o_vault
     volumes:
-      - ./:/usr/src/code
-
+      - ./matando_o_vault:/usr/src/matando_o_vault
 
   vault:
     image: vault:1.2.2
@@ -73,4 +82,3 @@ services:
       default:
         aliases:
         - vault.s3
-

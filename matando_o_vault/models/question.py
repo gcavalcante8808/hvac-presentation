@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import ModelSchema
 from sqlalchemy import Column, Integer, DECIMAL, String, DateTime
 
-from matando_o_vault.utils.db import Base
+from utils.db import Base
 import datetime
 
 
